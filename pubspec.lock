@@ -90,7 +90,7 @@ packages:
     source: hosted
     version: "0.2.0+6"
   firebase_auth:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: firebase_auth
       sha256: "2886a01a895565722add556510263231390a9f1d1d51eee34c22f9b94a73dd54"
@@ -114,7 +114,7 @@ packages:
     source: hosted
     version: "5.13.8"
   firebase_core:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: firebase_core
       sha256: "93dc4dd12f9b02c5767f235307f609e61ed9211047132d07f9e02c668f0bfc33"
