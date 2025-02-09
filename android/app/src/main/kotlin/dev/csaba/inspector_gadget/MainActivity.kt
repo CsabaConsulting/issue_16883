@@ -1,4 +1,4 @@
-package com.example.issue_16883
+package dev.csaba.inspector_gadget
 
 import io.flutter.embedding.android.FlutterActivity
 
