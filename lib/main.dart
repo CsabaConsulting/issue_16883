@@ -17,12 +17,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_vertexai/firebase_vertexai.dart';
 import 'package:flutter/material.dart';
 
-import 'pages/chat_page.dart';
 import 'pages/function_calling_page.dart';
-import 'pages/image_prompt_page.dart';
-import 'pages/token_count_page.dart';
-import 'pages/schema_page.dart';
-import 'pages/storage_uri_page.dart';
 
 // REQUIRED if you want to run on Web
 const FirebaseOptions? options = null;
@@ -73,14 +68,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Widget> get _pages => <Widget>[
         // Build _pages dynamically
-        ChatPage(title: 'Chat', model: widget.model),
-        TokenCountPage(title: 'Token Count', model: widget.model),
         const FunctionCallingPage(
           title: 'Function Calling',
         ), // function calling will initial its own model
-        ImagePromptPage(title: 'Image Prompt', model: widget.model),
-        StorageUriPromptPage(title: 'Storage URI Prompt', model: widget.model),
-        SchemaPromptPage(title: 'Schema Prompt', model: widget.model),
       ];
 
   void _onItemTapped(int index) {
@@ -102,51 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.chat,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: 'Chat',
-            tooltip: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.numbers,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: 'Token Count',
-            tooltip: 'Token Count',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
               Icons.functions,
               color: Theme.of(context).colorScheme.primary,
             ),
             label: 'Function Calling',
             tooltip: 'Function Calling',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.image,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: 'Image Prompt',
-            tooltip: 'Image Prompt',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.folder,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: 'Storage URI Prompt',
-            tooltip: 'Storage URI Prompt',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.schema,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: 'Schema Prompt',
-            tooltip: 'Schema Prompt',
           ),
         ],
         currentIndex: _selectedIndex,
