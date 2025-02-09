@@ -12,37 +12,56 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:firebase_core/firebase_core.dart';
+import 'dart:developer';
+
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_vertexai/firebase_vertexai.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:inspector_gadget/ai_service.dart';
 
-import 'pages/function_calling_page.dart';
-
-// REQUIRED if you want to run on Web
-const FirebaseOptions? options = null;
+import 'package:inspector_gadget/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await initFirebase();
   await Firebase.initializeApp();
   await FirebaseAuth.instance.signInAnonymously();
 
-  var vertex_instance =
-      FirebaseVertexAI.instanceFor(auth: FirebaseAuth.instance);
-  final model = vertex_instance.generativeModel(model: 'gemini-1.5-flash');
+  runApp(GenerativeAISample());
+}
 
-  runApp(GenerativeAISample(model: model));
+Future<void> initFirebase() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.debug,
+  );
+
+  try {
+    final userCredential = await FirebaseAuth.instance.signInAnonymously();
+    final user = userCredential.user;
+
+    if (user != null) {
+      log('Signed in anonymously with user ID: ${user.uid}');
+    } else {
+      log('Error signing in anonymously: $userCredential');
+    }
+  } on FirebaseAuthException catch (e) {
+    log('Error signing in anonymously: ${e.message}');
+  }
 }
 
 class GenerativeAISample extends StatelessWidget {
-  final GenerativeModel model;
-
-  const GenerativeAISample({super.key, required this.model});
+  const GenerativeAISample({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter + Vertex AI',
+      title: 'Issue 16883',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           brightness: Brightness.dark,
@@ -50,34 +69,20 @@ class GenerativeAISample extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: HomeScreen(model: model),
+      home: HomeScreen(),
     );
   }
 }
 
 class HomeScreen extends StatefulWidget {
-  final GenerativeModel model;
-  const HomeScreen({super.key, required this.model});
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
-
-  List<Widget> get _pages => <Widget>[
-        // Build _pages dynamically
-        const FunctionCallingPage(
-          title: 'Function Calling',
-        ), // function calling will initial its own model
-      ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  String _response = "";
 
   @override
   Widget build(BuildContext context) {
@@ -86,21 +91,20 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Flutter + Vertex AI'),
       ),
       body: Center(
-        child: _pages.elementAt(_selectedIndex),
+        child: Text(_response),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.functions,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: 'Function Calling',
-            tooltip: 'Function Calling',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+      floatingActionButton: IconButton(
+        icon: const Icon(Icons.functions),
+        onPressed: () async {
+          final response = (await AiService()
+                  .chatStep("What's the weather in Fresno, California?"))
+              ?.text;
+          if (response != null) {
+            setState(() {
+              _response = response;
+            });
+          }
+        },
       ),
     );
   }
